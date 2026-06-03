@@ -240,7 +240,7 @@ commit ล่าสุดที่รวมงาน endpoint และ resolve 
 รันจริงล่าสุดด้วย:
 
 ```powershell
-$env:API_BASE_URL="http://localhost:5001"
+$env:API_BASE_URL="http://localhost:5000"
 npm.cmd run test:brand-api
 ```
 
@@ -260,4 +260,4 @@ npm.cmd run test:brand-api
 [done] PATCH /api/products/new-brand/:id integration checks passed
 ```
 
-หมายเหตุ: port `5000` มี server อีก instance ที่ยังไม่เห็น route ใหม่นี้ จึงใช้ backend จาก workspace ปัจจุบันบน port `5001` สำหรับการยืนยันจริง
+หมายเหตุ: ก่อนหน้านี้ port `5000` เคยตอบ `404 Route not found` เพราะเป็น backend instance เก่าที่ยังไม่ได้โหลด route ล่าสุด หลัง restart backend จาก workspace ปัจจุบันแล้ว `PATCH /api/products/new-brand/:id` บน port `5000` ผ่าน integration test ครบทุก case

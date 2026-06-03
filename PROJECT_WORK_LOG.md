@@ -96,3 +96,59 @@
 - Existing product write routes are inconsistent: `createProduct` and `createNewBrand` are public, while the new Brand model update route is protected with `authStaff` as required for mutation safety.
 - `npm test` is still the original placeholder script and does not run a real automated suite.
 - Real endpoint verification is available through `npm run test:brand-api`.
+
+## [2026-06-03] Verify product Brand route on port 5000
+
+### Scope
+
+- Fix routing/runtime verification for `PATCH /api/products/new-brand/:id`
+- Do not redesign business logic
+
+### Files Changed
+
+- `SPEC.md`
+  - Added latest port 5000 route verification note
+- `PROJECT_WORK_LOG.md`
+  - Added this verification entry
+- `KINETIX_BACKEND_HANDOFF.md`
+  - Updated latest integration test note from port 5001 to port 5000
+
+### API Contract
+
+- Method: `PATCH`
+- Verified path: `/api/products/new-brand/:id`
+- Auth: `authStaff`
+- Path params:
+  - `id`: Brand document ObjectId
+- Request body:
+  - `modelId`: Product model document ObjectId
+
+### Verification
+
+- Real route trace:
+  - `server.js`: `app.use("/api", apiRouter)`
+  - `routes/index.js`: `router.use("/products", productsRouter)`
+  - `product.router.js`: `router.patch("/new-brand/:id", authStaff, addProductModelToBrand)`
+- Manual route check:
+  - `PATCH http://localhost:5000/api/products/new-brand/665012345678abcdef123456`
+  - Result: `401`, not `404`
+- Real integration test:
+  - `npm.cmd run test:brand-api`
+  - Result: passed on `http://localhost:5000`
+- Cases passed:
+  - success `200`
+  - duplicate relation `409`
+  - missing `modelId` `400`
+  - invalid Brand ObjectId `400`
+  - invalid Product model ObjectId `400`
+  - Brand not found `404`
+  - Product model not found `404`
+  - missing token `401`
+  - invalid token `401`
+  - cleanup completed
+
+### Notes
+
+- The route itself was already present in source code.
+- The `404 Route not found` came from a stale backend process on port `5000` that had not loaded the latest route.
+- Restarting the backend from the current workspace fixed the routing failure.
