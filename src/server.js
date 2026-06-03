@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 
-import { router as apiRouter } from "./roues/index.js";
+import { router as apiRouter } from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/mongoDB.js";
 import { limiter } from "./middelware/rateLimit.js";
@@ -12,27 +12,24 @@ const corsOption = {
     "https://kinetix-qnx5.onrender.com",
     "http://localhost:5173",
     "http://localhost:5174",
-    "http://localhost:5175"
+    "http://localhost:5175",
   ],
 };
 
-// TODO: remove before production
-// const corsOption = { origin: "*" };
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(helmet());
 app.use(cookieParser());
-
 app.use(cors(corsOption));
-
 app.use(express.json());
 app.use(limiter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Kinetix");
 });
-// http//localhost:5000/api
+
+// http://localhost:5000/api
 app.use("/api", apiRouter);
 
 app.use((err, req, res, next) => {
@@ -43,9 +40,7 @@ app.use((err, req, res, next) => {
     path: req.originalUrl,
     method: req.method,
     timestamp: new Date().toISOString(),
-    stack: err.stack,
-  });
-});
+  };
 
   if (process.env.NODE_ENV !== "production") {
     response.stack = err.stack;
@@ -57,5 +52,5 @@ app.use((err, req, res, next) => {
 await connectDB();
 
 app.listen(PORT, () => {
-  console.log(`Server is running or Port: ${PORT} !!`);
+  console.log(`Server is running on Port: ${PORT} !!`);
 });

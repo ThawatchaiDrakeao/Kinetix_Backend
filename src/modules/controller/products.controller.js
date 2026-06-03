@@ -22,32 +22,26 @@ export const getProduct = async (req, res, next) => {
 };
 
 export const createProduct = async (req, res, next) => {
-  const { modelName, description, brandId, category, rentalPlan, variants } =
+  const { name, description, brandId, category, rentalPlan, variants } =
     req.body || "";
 
-  console.log({
-    modelName,
-    description,
-    brandId,
-    category,
-    rentalPlan,
-    variants,
-  });
-  if (!modelName || !variants || !brandId || !category || !rentalPlan) {
+  // console.log({
+  //   modelName,
+  //   description,
+  //   brandId,
+  //   category,
+  //   rentalPlan,
+  //   variants,
+  // });
+  if (!name || !variants || !brandId || !category || !rentalPlan) {
     return res
       .status(404)
       .json({ success: false, message: "Incomplete information." });
   }
-  const { skuColorCode } = variants.skuColorCode;
-  const { colorName } = variants.colorName;
-  const { images } = variants.images;
-  const { sizes } = variants.sizes;
-  const { size } = sizes.size;
-  const { stock } = sizes.stock;
 
   try {
     const doc = await Products.create({
-      modelName: modelName,
+      name: name,
       variants: variants,
       brandId: brandId,
       category: category,

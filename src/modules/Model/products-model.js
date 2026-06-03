@@ -17,17 +17,17 @@ const variantSchema = new mongoose.Schema({
     unique: true,
   },
   colorName: { type: String, required: true },
-  images: { type: String },
+  images: [{ type: String }],
   size: [sizeSchema],
 });
 export const rentalSchema = new mongoose.Schema({
   "1day": { type: Number, require: true },
   "3day": { type: Number, require: true },
   "7day": { type: Number, require: true },
-},);
+});
 const ProductsSchema = new mongoose.Schema(
   {
-    modleName: { type: String, required: true, minlength: 5 },
+    name: { type: String, minlength: 5, trim: true, required: true },
     description: { type: String },
     brandId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -35,9 +35,8 @@ const ProductsSchema = new mongoose.Schema(
       required: true,
     },
     gender: {
-      type: String,
-      required: true,
-      enum: ["men", "women", "unisex"],
+      enum: ["men", "women", "unisex"]
+      
     },
     category: {
       type: String,
@@ -47,7 +46,7 @@ const ProductsSchema = new mongoose.Schema(
     rentalPlan: [rentalSchema],
     variants: [variantSchema],
     isActive: { type: Boolean, default: true },
-    createdAt: { type: Date, default: Date.now ,select:false},
+    createdAt: { type: Date, default: Date.now, select: false },
   },
   { timestamps: true },
 );
