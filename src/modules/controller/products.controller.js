@@ -1,5 +1,8 @@
+import mongoose from "mongoose";
 import { Brand } from "../Model/Brand-model.js";
 import { Products } from "../Model/products-model.js";
+
+const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
 
 export const getProduct = async (req, res, next) => {
   try {
@@ -110,6 +113,94 @@ export const getCategory = async (req, res, next) => {
     return res
       .status(200)
       .json({ success: true, message: "founded!", data: doc });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const addProductModelToBrand = async (req, res, next) => {
+  const { id } = req.params;
+  const { modelId } = req.body || {};
+
+  if (!isValidObjectId(id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid brand id",
+    });
+  }
+
+  if (!modelId) {
+    return res.status(400).json({
+      success: false,
+      message: "modelId is required",
+    });
+  }
+
+  if (!isValidObjectId(modelId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid product model id",
+    });
+  }
+
+  try {
+    const brand = await Brand.findById(id);
+    if (!brand) {
+      return res.status(404).json({
+        success: false,
+        message: "Brand not found",
+      });
+    }
+
+    const productModel = await Products.findById(modelId);
+    if (!productModel) {
+      return res.status(404).json({
+        success: false,
+        message: "Product model not found",
+      });
+    }
+
+    const modelIdString = productModel._id.toString();
+    const alreadyExists = brand.model?.some((item) => {
+      const value = item instanceof Map ? item.get("modelId") : item?.modelId;
+      return value === modelIdString;
+    });
+
+    if (alreadyExists) {
+      return res.status(409).json({
+        success: false,
+        message: "Product model already exists in this brand",
+      });
+    }
+
+    const modelEntry = {
+      modelId: modelIdString,
+      name: productModel.name,
+    };
+
+    const updatedBrand = await Brand.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(id),
+        model: { $not: { $elemMatch: { modelId: modelIdString } } },
+      },
+      { $addToSet: { model: modelEntry } },
+      { returnDocument: "after" },
+    );
+
+    if (!updatedBrand) {
+      return res.status(409).json({
+        success: false,
+        message: "Product model already exists in this brand",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Product model added to brand successfully",
+      data: {
+        brand: updatedBrand,
+      },
+    });
   } catch (err) {
     next(err);
   }
