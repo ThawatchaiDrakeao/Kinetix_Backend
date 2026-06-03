@@ -23,6 +23,8 @@ const orderSchema = new mongoose.Schema({
     default: "Waiting",
   },
   ordered_at: { type: Date, default: Date.now },
+  delivery_shipping_date: { type: Date },
+  delivery_confirm_date: { type: Date },
   delivery_date: { type: Date },
   item: OrdersItem,
   suspended_at: { type: Date },
